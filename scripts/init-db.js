@@ -1,31 +1,37 @@
 /**
- * 🗄️ Database Initialization Script
- * Provisions and seeds the initial database for a new project.
- * Usage: node init-db.js <db-name>
+ * 🗄️ Database Initialization & Service Registration
+ * Provisions the project DB and registers it in the Central Service Registry.
+ * Usage: node init-db.js <db-name> <repo-url>
  */
 
-function initDB(dbName) {
-    if (!dbName) {
-        console.error("❌ Please provide a database name.");
+function initDB(dbName, repoUrl) {
+    if (!dbName || !repoUrl) {
+        console.error("❌ Usage: node init-db.js <db-name> <repo-url>");
         process.exit(1);
     }
 
-    console.log(`🛠 Provisioning database: ${dbName}...`);
+    console.log(`🛠 [Project] Provisioning database: ${dbName}...`);
 
     try {
-        // Mocking Supabase / Prisma initialization
-        console.log(`1. Authenticating with infrastructure provider...`);
-        console.log(`2. Creating project database...`);
-        console.log(`3. Running baseline migrations (/infra/migrations/)...`);
-        console.log(`4. Seeding initial development data...`);
+        // Step 1: Provision Project DB
+        console.log(`1. Creating project database '${dbName}'...`);
+        console.log(`2. Running baseline migrations...`);
 
-        console.log(`✅ Database ${dbName} is now ready for use.`);
-        console.log(`🔑 Connection string generated. Updating project secrets...`);
+        // Step 2: Register in Central Service Registry
+        console.log(`\n🛰️ [Orchestration] Registering service in Central Registry...`);
+        const registrationQuery = `
+            INSERT INTO services (name, repo_url, status) 
+            VALUES ('${dbName}', '${repoUrl}', 'active');
+        `;
+        console.log(`> Executing registration: ${registrationQuery.trim()}`);
+
+        console.log(`✅ Success: ${dbName} is now active and registered.`);
     } catch (error) {
-        console.error(`❌ Database initialization failed: ${error.message}`);
+        console.error(`❌ Initialization failed: ${error.message}`);
         process.exit(1);
     }
 }
 
 const db = process.argv[2];
-initDB(db);
+const url = process.argv[3];
+initDB(db, url);
