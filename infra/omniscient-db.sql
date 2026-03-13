@@ -50,3 +50,35 @@ CREATE TABLE IF NOT EXISTS agent_audits (
     audit_log_url TEXT, -- Link to the PR Audit Log
     logged_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 6. Model Pricing (Dynamic Reference)
+CREATE TABLE IF NOT EXISTS model_pricing (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    model_name TEXT UNIQUE NOT NULL, -- e.g., 'gemini-1.5-pro'
+    provider TEXT NOT NULL, -- e.g., 'google'
+    input_cost_per_1k FLOAT NOT NULL,
+    output_cost_per_1k FLOAT NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Token Usage Tracker (Fact Table)
+CREATE TABLE IF NOT EXISTS token_usage (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    service_id UUID REFERENCES services(id),
+    agent_id TEXT,
+    model_name TEXT NOT NULL,
+    prompt_tokens INTEGER NOT NULL,
+    completion_tokens INTEGER NOT NULL,
+    total_cost FLOAT NOT NULL, -- Calculated at time of entry
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 8. Project Finances (Budgets & Expenses)
+CREATE TABLE IF NOT EXISTS project_finances (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    service_id UUID REFERENCES services(id) UNIQUE,
+    total_budget FLOAT DEFAULT 0,
+    current_spend FLOAT DEFAULT 0,
+    currency TEXT DEFAULT 'USD',
+    last_reconciled TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

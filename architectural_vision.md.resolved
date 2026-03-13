@@ -1,0 +1,29 @@
+# 🛰️ Primis-Inginium Architectural Vision: The AI-Driven Core
+
+This document outlines the "Grand Plan" for evolving Primis-Inginium into a fully autonomous, self-optimizing AI organization.
+
+## 1. The Omniscient Database (State & Knowledge)
+We are moving from a simple "Service Registry" to a comprehensive **Omniscient Database**.
+- **Role**: Tracks services, architectural decisions (ADRs), agent performance, and knowledge items.
+- **Implementation**: PostgreSQL (Supabase) with a JSONB metadata layer.
+- **Benefit**: Agents can query this DB to understand the *entire* history of the org before making a single code change.
+
+## 2. Prompt TDD (via Promptfoo)
+We will treat prompts as first-class code.
+- **The Pipeline**: Meeting Transcript -> [Prompt Engineer AI] -> User Stories.
+- **The Guardrail**: Every prompt used in this pipeline will be verified by **Promptfoo**.
+- **Metrics**: We will track "pass rates" for requirements generation, ensuring our agents are always acting on high-quality, unambiguous instructions.
+
+## 3. Universal Interface (via MCP)
+We will implement a **Primis MCP Server** in the `agent-toolbox`.
+- **Tools**: The server will expose tools like `create-feature-backlog`, `deploy-to-prod`, and `query-knowledge-base`.
+- **Standard**: No matter which agent we use (AlphaClaw, IronClaw, or custom), they will all speak **MCP** to interact with our infrastructure.
+
+## 4. The Self-Improving Loop
+1.  **Action**: Agent executes a task.
+2.  **Audit**: [audit-helper.js](file:///c:/Users/tubul/primis-agent-toolbox/scripts/audit-helper.js) logs the action and impact to the Omniscient DB.
+3.  **Eval**: Promptfoo evaluates if the resulting code matched the original intent.
+4.  **Optimize**: Patterns that lead to high scores are promoted to the `rag-docs/`.
+
+---
+**Vision**: Primis-Inginium builds faster because it never makes the same mistake twice.
