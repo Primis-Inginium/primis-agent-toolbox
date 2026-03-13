@@ -1,0 +1,34 @@
+# 🧪 Primis-Inginium Promptfoo Configuration
+# Used to evaluate the "Discovery" pipeline: Transcript -> User Stories.
+
+prompts:
+  - "Translate the following client transcript into high-quality user stories following our Modular Feature Pattern: {{transcript}}"
+
+providers:
+  - id: "vertex:gemini-1.5-pro"
+    config:
+      temperature: 0.2
+
+tests:
+  - vars:
+      transcript: "I need a way for users to log in with their email and see a custom dashboard. It should load fast."
+    assert:
+      - type: icontains
+        value: "As a user"
+      - type: icontains
+        value: "feature: auth"
+      - type: javascript
+        value: output.length > 100 # Ensure it's not too brief
+      - type: llm-rubric
+        value: "The output follows the Primis-Inginium discovery standard and includes at least one functional requirement."
+
+  - vars:
+      transcript: "We want to add a profile picture upload but it must be secure."
+    assert:
+      - type: icontains
+        value: "AlphaClaw"
+      - type: icontains
+        value: "feature: user-profile"
+
+# Run with: npx promptfoo eval
+# View results with: npx promptfoo view
