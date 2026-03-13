@@ -1,0 +1,14 @@
+{
+  "name": "primis-agent-toolbox",
+  "version": "1.0.0",
+  "description": "Utility suite for Primis-Inginium AI agents",
+  "main": "index.js",
+  "scripts": {
+    "lint:modularity": "node scripts/modularity-linter.js",
+    "generate:audit": "node scripts/audit-helper.js"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "glob": "^8.0.3"
+  }
+}
