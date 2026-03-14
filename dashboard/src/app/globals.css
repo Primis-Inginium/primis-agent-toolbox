@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0b0b0f;
+  --foreground: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.02);
+  --border-glow: rgba(147, 51, 234, 0.3);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Glassmorphic utilities */
+.glass-effect {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 20px var(--border-glow);
+  border-color: rgba(147, 51, 234, 0.5);
+  transition: all 0.3s ease;
+}
+
+.shimmer {
+  background: linear-gradient(110deg, #18181b 8%, #27272a 18%, #18181b 33%);
+  background-size: 200% 100%;
+  animation: 1.5s shine linear infinite;
+}
+
+@keyframes shine {
+  to {
+    background-position-x: -200%;
+  }
+}

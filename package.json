@@ -8,6 +8,7 @@
     "generate:audit": "node scripts/audit-helper.js"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "chalk": "^4.1.2",
     "glob": "^8.0.3"
   }

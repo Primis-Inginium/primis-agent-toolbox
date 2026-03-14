@@ -1,39 +1,76 @@
 /**
- * 🔌 Primis MCP Server (Prototype)
+ * 🔌 Primis MCP Server (Standard CJS API)
  * Exposes Primis-Inginium knowledge and tools via the Model Context Protocol.
  */
 
-const { Server } = require("@modelcontextprotocol/sdk/server.js");
-const { StdioServerTransport } = require("@modelcontextprotocol/sdk/server/stdio.js");
+const path = require('path');
+const sdkDir = 'c:\\Users\\tubul\\primis-agent-toolbox\\node_modules\\@modelcontextprotocol\\sdk\\dist\\cjs';
+
+const { Server } = require(path.join(sdkDir, 'server', 'index.js'));
+const { StdioServerTransport } = require(path.join(sdkDir, 'server', 'stdio.js'));
+const { 
+    ListToolsRequestSchema, CallToolRequestSchema,
+    ListResourcesRequestSchema, ReadResourceRequestSchema 
+} = require(path.join(sdkDir, 'types.js'));
 
 const server = new Server({
     name: "primis-mcp",
     version: "1.0.0",
+}, {
+    capabilities: {
+        tools: {},
+        resources: {}
+    }
 });
 
-// 1. Expose Tools (Actions)
-server.tool("create-backlog", "Generate GitHub issues from a requirement file", {
-    filePath: { type: "string", description: "Path to requirements.md" }
-}, async ({ filePath }) => {
-    // Logic to call issue-generator.js
-    return { content: [{ type: "text", text: `Backlog generation triggered for ${filePath}` }] };
-});
-
-// 2. Expose Resources (Knowledge)
-server.resource("discovery-standard", "mcp://knowledge/discovery", async () => {
-    return { content: [{ type: "text", text: "Primis Discovery Standard: [Content from RAG Docs...]" }] };
-});
-
-// 3. Expose Prompts (Instructions)
-server.prompt("translate-transcript", "Transcript to User Stories prompt template", {
-    transcript: { type: "string" }
-}, async ({ transcript }) => {
+// 1. Tools Handlers
+server.setRequestHandler(ListToolsRequestSchema, async () => {
     return {
-        messages: [{
-            role: "user",
-            content: { type: "text", text: `Translate this: ${transcript} using our discovery standard.` }
+        tools: [{
+            name: "create-backlog",
+            description: "Generate GitHub issues from a requirement file",
+            inputSchema: {
+                type: "object",
+                properties: {
+                    filePath: { type: "string" }
+                },
+                required: ["filePath"]
+            }
         }]
     };
+});
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    if (request.params.name === "create-backlog") {
+        const filePath = request.params.arguments?.filePath;
+        return { content: [{ type: "text", text: `Backlog generation triggered for ${filePath}` }] };
+    }
+    throw new Error(`Tool not found: ${request.params.name}`);
+});
+
+// 2. Resources Handlers
+server.setRequestHandler(ListResourcesRequestSchema, async () => {
+    return {
+        resources: [{
+            uri: "mcp://docs/primis-analysis",
+            name: "Documentation Index",
+            mimeType: "text/markdown"
+        }]
+    };
+});
+
+server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
+    if (request.params.uri === "mcp://docs/primis-analysis") {
+        const fs = require('fs');
+        const indexPath = 'c:\\Users\\tubul\\AndroidStudioProjects\\PrimisInginium\\primis_analysis\\docs\\README.md';
+        try {
+            const content = fs.readFileSync(indexPath, 'utf-8');
+            return { content: [{ type: "text", text: content }] };
+        } catch (err) {
+            return { content: [{ type: "text", text: `Error reading docs index: ${err.message}` }] };
+        }
+    }
+    throw new Error(`Resource not found: ${request.params.uri}`);
 });
 
 async function run() {

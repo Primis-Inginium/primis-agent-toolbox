@@ -1,0 +1,7 @@
+node_modules/
+package-lock.json
+.agents/
+*titles*.txt
+*out*.txt
+dashboard/node_modules/
+dashboard/.next/

@@ -1,0 +1,47 @@
+# 🐳 Primis-Inginium Local Server Stack
+# Automates the hosting of the Omniscient DB and MCP Servers.
+
+services:
+  # 1. The Omniscient Database
+  db:
+    image: postgres:15-alpine
+    container_name: primis-db
+    environment:
+      POSTGRES_USER: primis
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-primis_pass}
+      POSTGRES_DB: omniscient_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./infra/omniscient-db.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # 2. Universal MCP Server
+  mcp:
+    build:
+      context: .
+      dockerfile: ./docker/MCP.Dockerfile
+    container_name: primis-mcp
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://primis:${DB_PASSWORD:-primis_pass}@db:5432/omniscient_db
+    ports:
+      - "3000:3000" # Expose for internal tools
+
+  # 3. Webhook Listener (Automation Core)
+  webhook-receiver:
+    build:
+      context: .
+      dockerfile: ./docker/Receiver.Dockerfile
+    container_name: primis-deploy-agent
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Allows container to restart peer containers
+      - ..:/app # Mount the parent directory to allow git operations
+    environment:
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+    ports:
+      - "8080:8080"
+
+volumes:
+  db_data:
